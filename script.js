@@ -11,7 +11,7 @@ imageContainer.appendChild(tooltip);
 
 const PREDICTION_URL = "https://rgservice20250206-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/e10a03bc-1f3e-4481-990b-505e6997a8ab/detect/iterations/Iteration2/url";
 const PREDICTION_KEY = "6cpDeuDsG84PzY9wkZApf4XUZDrczW8XsWYuBMa9SdlZ8BObgnTdJQQJ99BBACYeBjFXJ3w3AAAIACOG2QQc";
-const THRESHOLD = 0.15;  // Umbral de probabilidad
+const THRESHOLD = 0.15; // Umbral de probabilidad
 
 form.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -28,8 +28,8 @@ form.addEventListener("submit", async function (event) {
     predictionsDiv.innerHTML = "<p>Cargando predicciones...</p>";
     imageContainer.style.display = 'none'; // Ocultar la imagen hasta que se cargue
 
-    // Realizar solicitud a la API de Azure
     try {
+        // Realizar solicitud a la API de Azure
         const response = await fetch(PREDICTION_URL, {
             method: "POST",
             headers: {
@@ -45,10 +45,6 @@ form.addEventListener("submit", async function (event) {
 
         const data = await response.json();
 
-        // Mostrar la imagen en el cuadro
-        predictedImage.src = imageUrl;
-        imageContainer.style.display = 'block'; // Mostrar la imagen cargada
-
         // Filtrar las predicciones por el umbral
         const predictions = data.predictions.filter(prediction => prediction.probability >= THRESHOLD);
 
@@ -57,55 +53,62 @@ form.addEventListener("submit", async function (event) {
             return;
         }
 
-        // Establecer el tamaño del canvas según la imagen
-        canvas.width = predictedImage.width;
-        canvas.height = predictedImage.height;
+        // Configurar el evento onload para la imagen
+        predictedImage.onload = function () {
+            imageContainer.style.display = 'block'; // Mostrar la imagen cargada
 
-        // Mostrar las predicciones
-        predictionsDiv.innerHTML = predictions.map((prediction, index) => {
-            return `
-                <div data-index="${index}">
-                    <strong>Etiqueta:</strong> ${prediction.tagName}<br>
-                    <strong>Probabilidad:</strong> ${(prediction.probability * 100).toFixed(2)}%<br>
-                </div>
-            `;
-        }).join('');
+            // Establecer el tamaño del canvas según la imagen
+            canvas.width = predictedImage.width;
+            canvas.height = predictedImage.height;
 
-        // Función para mostrar las predicciones al pasar el mouse sobre la imagen
-        imageContainer.addEventListener("mousemove", function(event) {
-            const mouseX = event.offsetX;
-            const mouseY = event.offsetY;
+            // Mostrar las predicciones
+            predictionsDiv.innerHTML = predictions.map((prediction, index) => {
+                return `
+                    <div data-index="${index}">
+                        <strong>Etiqueta:</strong> ${prediction.tagName}<br>
+                        <strong>Probabilidad:</strong> ${(prediction.probability * 100).toFixed(2)}%<br>
+                    </div>
+                `;
+            }).join('');
 
-            // Limpiar el tooltip antes de mostrar uno nuevo
-            tooltip.style.display = "none";
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+            // Configurar el comportamiento del tooltip y los cuadros
+            imageContainer.addEventListener("mousemove", function (event) {
+                const mouseX = event.offsetX;
+                const mouseY = event.offsetY;
 
-            // Verificar qué predicciones están dentro del área donde está el mouse
-            predictions.forEach(prediction => {
-                const { left, top, width, height } = prediction.boundingBox;
+                // Limpiar el tooltip y el canvas
+                tooltip.style.display = "none";
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Verificar si el mouse está dentro del cuadro de la predicción
-                if (mouseX >= left * canvas.width && mouseX <= (left + width) * canvas.width && mouseY >= top * canvas.height && mouseY <= (top + height) * canvas.height) {
-                    // Mostrar el tooltip con la información de la predicción
-                    tooltip.style.display = "block";
-                    tooltip.style.left = `${mouseX + 10}px`; // Posicionamos el tooltip ligeramente a la derecha del mouse
-                    tooltip.style.top = `${mouseY + 10}px`; // Posicionamos el tooltip ligeramente por debajo del mouse
-                    tooltip.innerHTML = `<strong>${prediction.tagName}</strong><br>Probabilidad: ${(prediction.probability * 100).toFixed(2)}%`;
+                predictions.forEach(prediction => {
+                    const { left, top, width, height } = prediction.boundingBox;
 
-                    // Dibujar el recuadro en el canvas solo cuando el mouse está sobre una zona válida
-                    ctx.beginPath();
-                    ctx.rect(left * canvas.width, top * canvas.height, width * canvas.width, height * canvas.height);
-                    ctx.lineWidth = 3;
-                    ctx.strokeStyle = "red";
-                    ctx.stroke();
-                }
+                    // Verificar si el mouse está sobre un cuadro
+                    if (mouseX >= left * canvas.width && mouseX <= (left + width) * canvas.width &&
+                        mouseY >= top * canvas.height && mouseY <= (top + height) * canvas.height) {
+                        // Mostrar el tooltip
+                        tooltip.style.display = "block";
+                        tooltip.style.left = `${mouseX + 10}px`;
+                        tooltip.style.top = `${mouseY + 10}px`;
+                        tooltip.innerHTML = `<strong>${prediction.tagName}</strong><br>Probabilidad: ${(prediction.probability * 100).toFixed(2)}%`;
+
+                        // Dibujar el cuadro en el canvas
+                        ctx.beginPath();
+                        ctx.rect(left * canvas.width, top * canvas.height, width * canvas.width, height * canvas.height);
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = "red";
+                        ctx.stroke();
+                    }
+                });
             });
-        });
 
-        // Esconder el tooltip cuando el mouse sale de la imagen
-        imageContainer.addEventListener("mouseleave", function() {
-            tooltip.style.display = "none";
-        });
+            imageContainer.addEventListener("mouseleave", function () {
+                tooltip.style.display = "none";
+            });
+        };
+
+        // Asignar la URL de la imagen para que se cargue y dispare el evento onload
+        predictedImage.src = imageUrl;
 
     } catch (error) {
         predictionsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
