@@ -35,6 +35,12 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
+
+.result-container {
+  display: flex; /* Usar flexbox para alinear los elementos horizontalmente */
+  align-items: flex-start; /* Alinear al inicio verticalmente */
+  gap: 20px; /* Espaciado entre los elementos */
+}
 .predictions {
   max-width: 300px;
   border: 1px solid #ddd;
