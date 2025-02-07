@@ -1,0 +1,70 @@
+/* Estilo para el contenedor de la imagen */
+.image-container {
+  position: relative;
+  width: 60%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+}
+
+#predicted-image {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Estilo para el canvas de los cuadros */
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* Hacer que el canvas no interfiera con los eventos del mouse */
+  border: none;
+}
+
+/* Estilo para el cuadro de predicción (tooltip) */
+.tooltip {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: none; /* Oculto por defecto */
+  pointer-events: none;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.predictions {
+  max-width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.predictions-container {
+  width: 35%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  margin-left: 20px;
+}
+
+#predictions div {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.error {
+  color: red;
+}
